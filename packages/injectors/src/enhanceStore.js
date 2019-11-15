@@ -55,6 +55,12 @@ const enhanceStore = (prevStore, storeInterface, { onEjected = noop, onInjected 
 			payload: keys(injectables),
 			meta: props,
 		});
+
+		dispatch({
+			type: `@redux-tools/${actionType}_REMOVE_DATA`,
+			payload: keys(injectables),
+			meta: props,
+		});
 	};
 
 	const nextStore = {

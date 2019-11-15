@@ -45,11 +45,15 @@ describe('enhanceStore', () => {
 		expect(injectedAction.meta).toEqual({ namespace: 'bar' });
 		jest.clearAllMocks();
 		store.ejectThings({ foo: noop }, { namespace: 'bar' });
-		expect(dispatch).toHaveBeenCalledTimes(1);
+		expect(dispatch).toHaveBeenCalledTimes(2);
 		const ejectedAction = dispatch.mock.calls[0][0];
 		expect(ejectedAction.type).toBe('@redux-tools/THINGS_EJECTED');
 		expect(ejectedAction.payload).toEqual(['foo']);
 		expect(ejectedAction.meta).toEqual({ namespace: 'bar' });
+		const removeAction = dispatch.mock.calls[1][0];
+		expect(removeAction.type).toBe('@redux-tools/THINGS_REMOVE_DATA');
+		expect(removeAction.payload).toEqual(['foo']);
+		expect(removeAction.meta).toEqual({ namespace: 'bar' });
 	});
 
 	it('calls handlers on ejection', () => {
