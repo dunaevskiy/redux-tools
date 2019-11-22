@@ -57,7 +57,7 @@ describe('makeEnhancer', () => {
 			},
 		});
 
-		store.ejectReducers(identity, { namespace: 'nsB' });
+		store.ejectReducers({ a: reducerA }, { namespace: 'nsA' });
 		expect(store.getState()).toEqual({});
 	});
 });

@@ -1,4 +1,14 @@
-import { length, mapObjIndexed, pickBy, keys, o } from 'ramda';
+import {
+	length,
+	mapObjIndexed,
+	pickBy,
+	keys,
+	o,
+	mergeDeepRight,
+	dissocPath,
+	path,
+	isEmpty,
+} from 'ramda';
 import { isFunction } from 'ramda-extension';
 
 export default reducers => {
@@ -18,6 +28,32 @@ export default reducers => {
 		}, finalReducerKeys);
 
 		hasChanged = hasChanged || length(finalReducerKeys) !== o(length, keys)(state);
-		return hasChanged ? nextState : state;
+
+		let finalState = hasChanged ? mergeDeepRight(state, nextState) : state;
+
+		if (hasChanged && action && action.type === '@redux-tools/REDUCERS_EJECTED') {
+			let newSt = state;
+			const currentNameFeature = action.meta.feature || 'namespaces';
+
+			// For all reducers that should be removed
+			for (const reducerQ of action.payload) {
+				// Remove reducer
+				newSt = dissocPath([currentNameFeature, action.meta.namespace, reducerQ])(newSt);
+
+				// Check if namespace of reducer is empty and delete it
+				if (isEmpty(path([currentNameFeature, action.meta.namespace])(newSt))) {
+					newSt = dissocPath([currentNameFeature, action.meta.namespace])(newSt);
+				}
+
+				// Check if object namespaces(feature) of namespaces is empty and delete it
+				if (isEmpty(path([currentNameFeature])(newSt))) {
+					newSt = dissocPath([currentNameFeature])(newSt);
+				}
+			}
+
+			finalState = newSt;
+		}
+
+		return finalState;
 	};
 };
