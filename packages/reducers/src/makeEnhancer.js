@@ -8,6 +8,9 @@ import composeReducers from './composeReducers';
 
 export const storeInterface = makeStoreInterface('reducers');
 
+const cleanUpReducer = (state, action) =>
+	action.type === '@redux-tools/REDUCERS_EJECTED' ? dissocPath(action.payload, state) : state;
+
 const makeEnhancer = () => createStore => (reducer = identity, ...args) => {
 	const prevStore = createStore(reducer, ...args);
 
@@ -17,19 +20,11 @@ const makeEnhancer = () => createStore => (reducer = identity, ...args) => {
 			'You can only inject reducers as functions if you specify a namespace.'
 		);
 
-		const reducerForDataRemove = (state, action) => {
-			if (action.type === '@redux-tools/REDUCERS_REMOVE_DATA') {
-				return dissocPath(action.payload, state);
-			} else {
-				return state;
-			}
-		};
-
 		nextStore.replaceReducer(
 			composeReducers(
 				reducer,
 				combineReducerEntries(storeInterface.getEntries(nextStore)),
-				reducerForDataRemove
+				cleanUpReducer
 			)
 		);
 	};
