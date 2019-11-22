@@ -1,27 +1,23 @@
-export default reducers => {
-	const reducerKeys = Object.keys(reducers);
-	const finalReducers = {};
-	for (let i = 0; i < reducerKeys.length; i++) {
-		const key = reducerKeys[i];
+import { length, mapObjIndexed, pickBy, keys, o } from 'ramda';
+import { isFunction } from 'ramda-extension';
 
-		if (typeof reducers[key] === 'function') {
-			finalReducers[key] = reducers[key];
-		}
-	}
-	const finalReducerKeys = Object.keys(finalReducers);
+export default reducers => {
+	const finalReducers = pickBy(isFunction, reducers);
+	const finalReducerKeys = keys(finalReducers);
 
 	return function combination(state = {}, action) {
 		let hasChanged = false;
 		const nextState = {};
-		for (let i = 0; i < finalReducerKeys.length; i++) {
-			const key = finalReducerKeys[i];
+
+		mapObjIndexed(key => {
 			const reducer = finalReducers[key];
 			const previousStateForKey = state[key];
 			const nextStateForKey = reducer(previousStateForKey, action);
 			nextState[key] = nextStateForKey;
 			hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
-		}
-		hasChanged = hasChanged || finalReducerKeys.length !== Object.keys(state).length;
+		}, finalReducerKeys);
+
+		hasChanged = hasChanged || length(finalReducerKeys) !== o(length, keys)(state);
 		return hasChanged ? nextState : state;
 	};
 };

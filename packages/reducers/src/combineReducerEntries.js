@@ -4,8 +4,9 @@ import { DEFAULT_FEATURE } from '@redux-tools/namespaces';
 import { FUNCTION_KEY } from '@redux-tools/injectors';
 import invariant from 'invariant';
 
-import filterReducer from './filterReducer';
 import combineReducers from './combineReducers';
+import filterReducer from './filterReducer';
+
 
 export const deepCombineReducers = ifElse(
 	isEmpty,
